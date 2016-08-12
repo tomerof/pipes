@@ -6,8 +6,30 @@ import { Pipe,PipeTransform } from '@angular/core';
 })
 
 export class ConcatPipe implements PipeTransform{
-    transform(value:Array|Object, ...args):any {
+
+    private toArray(object:any){
+        var array = [];
+        for (var key in object) {
+            if (object.hasOwnProperty(key)) array.push(object[key]);
+        }
+        return array;
+    }
+
+    transform(value:any, ...args):any[] {
         if (typeof args[0] == "undefined") return value;
-        return [].concat(value,args[0]);
+        let joined = args[0];
+        if (Array.isArray(value)) {
+            return Array.isArray(joined)
+                ? value.concat(joined)
+                : value.concat(this.toArray(joined));
+        }
+
+        if (!Array.isArray(value)) {
+            let array = this.toArray(value);
+            return (Array.isArray(joined))
+                ? array.concat(joined)
+                : array.concat(this.toArray(joined));
+        }
+        return value;
     }
 }
